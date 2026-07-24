@@ -10,9 +10,10 @@ interface LicenseStatus {
 interface Props {
   status: LicenseStatus;
   onActivated: (status: LicenseStatus, apiToken: string) => void;
+  onTrial: () => void;
 }
 
-export default function LicenseScreen({ status, onActivated }: Props) {
+export default function LicenseScreen({ status, onActivated, onTrial }: Props) {
   const [licenseKey, setLicenseKey] = useState("");
   const [apiToken, setApiToken] = useState("");
   const [busy, setBusy] = useState(false);
@@ -108,6 +109,31 @@ export default function LicenseScreen({ status, onActivated }: Props) {
         >
           {busy ? "Validating…" : "Activate Bridge"}
         </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0", color: "var(--text-secondary)", fontSize: 10 }}>
+          <span style={{ height: 1, flex: 1, background: "var(--border)" }} />
+          OR TRY BEFORE BUYING
+          <span style={{ height: 1, flex: 1, background: "var(--border)" }} />
+        </div>
+        <button
+          type="button"
+          onClick={onTrial}
+          style={{
+            width: "100%",
+            padding: "12px 18px",
+            border: "1px solid var(--primary)",
+            borderRadius: 8,
+            color: "var(--primary)",
+            background: "transparent",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Continue in Trial Mode
+        </button>
+        <p style={{ margin: "12px 0 0", color: "var(--text-secondary)", fontSize: 10, lineHeight: 1.5, textAlign: "center" }}>
+          No license or secret token required. Trial mode only accepts safe test
+          prints from the official demo page.
+        </p>
       </div>
     </div>
   );
