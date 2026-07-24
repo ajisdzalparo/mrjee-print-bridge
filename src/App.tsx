@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import Dashboard from "./components/Dashboard";
-import LicenseScreen from "./components/LicenseScreen";
-import TrialWorkspace from "./components/TrialWorkspace";
 import LogsView from "./components/LogsView";
 import PrinterConfig from "./components/PrinterConfig";
 import PrinterTabs from "./components/PrinterTabs";
@@ -82,7 +80,6 @@ export default function App() {
   const [status, setStatus] = useState<BridgeStatus | null>(null);
   const [license, setLicense] = useState<LicenseStatus | null>(null);
   const [apiToken, setApiToken] = useState("");
-  const [trialMode, setTrialMode] = useState(false);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [logs, setLogs] = useState<string[]>([
     `[${new Date().toLocaleTimeString()}] [SERVER] Mrjee Print Bridge initialized`,
@@ -449,28 +446,6 @@ export default function App() {
       >
         Checking license…
       </div>
-    );
-  }
-
-  if (license && !license.valid) {
-    if (trialMode) {
-      return (
-        <TrialWorkspace
-          port={status?.port || 9000}
-          onActivate={() => setTrialMode(false)}
-        />
-      );
-    }
-    return (
-      <LicenseScreen
-        status={license}
-        onTrial={() => setTrialMode(true)}
-        onActivated={(nextLicense, token) => {
-          setLicense(nextLicense);
-          setApiToken(token);
-          void fetchStatus();
-        }}
-      />
     );
   }
 

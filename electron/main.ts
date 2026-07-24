@@ -51,6 +51,20 @@ let wss: WebSocketServer | null = null;
 let totalJobs = 0;
 let failedJobs = 0;
 const startTime = Date.now();
+const FREE_MODE = true;
+const FREE_LICENSE_STATUS = {
+  valid: true,
+  customer: "Free Edition",
+  kind: "free",
+  plan: "free",
+  expiresAt: null,
+  offline: true,
+  reason: "Free edition — no license required.",
+};
+
+function getEffectiveLicenseStatus() {
+  return FREE_MODE ? FREE_LICENSE_STATUS : getCurrentLicenseStatus();
+}
 
 // Jobs Queue Store
 export interface PrintJobItem {
@@ -137,16 +151,16 @@ function startServer(port: number): void {
       totalJobs,
       failedJobs,
       port: getPort(),
-      license: getCurrentLicenseStatus(),
+      license: getEffectiveLicenseStatus(),
     });
   });
 
   expressApp.get("/api/license/status", (_req, res) => {
-    res.json(getCurrentLicenseStatus());
+    res.json(getEffectiveLicenseStatus());
   });
 
   const protectPrintRoute: express.RequestHandler = (req, res, next) => {
-    const license = getCurrentLicenseStatus();
+    const license = getEffectiveLicenseStatus();
     if (!license.valid) {
       return res.status(423).json({
         success: false,
@@ -1124,7 +1138,7 @@ ipcMain.handle("set-auto-start", (_event, enabled: boolean) => {
   return app.getLoginItemSettings().openAtLogin;
 });
 
-ipcMain.handle("license-status", () => getCurrentLicenseStatus());
+ipcMain.handle("license-status", () => getEffectiveLicenseStatus());
 ipcMain.handle(
   "license-activate",
   async (_event, input: { licenseKey?: string; apiToken?: string }) => {
@@ -1190,8 +1204,10 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(async () => {
-    await validateLicense();
-    startLicenseRefreshScheduler();
+    if (!FREE_MODE) {
+      await validateLicense();
+      startLicenseRefreshScheduler();
+    }
     const port = getPort();
     startServer(port);
     createWindow();
