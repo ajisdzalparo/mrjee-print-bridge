@@ -19,6 +19,8 @@ export default function SettingsView({
   const [autoStart, setAutoStart] = useState<boolean>(false);
   const [minimizeToTray, setMinimizeToTray] = useState<boolean>(true);
   const [corsOrigin, setCorsOrigin] = useState<string>("*");
+  const [apiToken, setApiToken] = useState<string>("");
+  const [showApiToken, setShowApiToken] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
   const API_BASE =
@@ -51,7 +53,42 @@ export default function SettingsView({
         setAutoStart(enabled);
       });
     }
+    if ((window as any).electronAPI?.getApiToken) {
+      (window as any).electronAPI.getApiToken().then((token: string) => {
+        setApiToken(token || "");
+      });
+    }
   }, []);
+
+  const handleCopyApiToken = async () => {
+    if (!apiToken) return;
+    await navigator.clipboard.writeText(apiToken);
+    showToast?.(
+      "API Token Copied",
+      "Token lokal berhasil disalin. Jangan membagikannya ke publik.",
+      "success",
+    );
+  };
+
+  const handleRegenerateApiToken = async () => {
+    if (
+      !window.confirm(
+        "Buat token baru? Integrasi yang memakai token lama harus diperbarui.",
+      )
+    ) {
+      return;
+    }
+    const token = await (window as any).electronAPI?.regenerateApiToken?.();
+    if (token) {
+      setApiToken(token);
+      setShowApiToken(true);
+      showToast?.(
+        "API Token Regenerated",
+        "Token baru aktif. Perbarui token pada aplikasi yang terintegrasi.",
+        "info",
+      );
+    }
+  };
 
   const handleToggleAutoStart = async (checked: boolean) => {
     setAutoStart(checked);
@@ -184,6 +221,32 @@ export default function SettingsView({
             Enter a comma-separated allowlist, for example
             https://pos.example.com, https://wms.example.com. Use * only during
             local development.
+          </span>
+        </div>
+
+        <div className="form-group">
+          <label style={{ fontWeight: 700 }}>Local API Security Token</label>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input
+              type={showApiToken ? "text" : "password"}
+              value={apiToken}
+              readOnly
+              aria-label="Local API security token"
+              style={{ flex: "1 1 360px", fontFamily: "monospace" }}
+            />
+            <button type="button" onClick={() => setShowApiToken((value) => !value)}>
+              {showApiToken ? "Hide" : "Show"}
+            </button>
+            <button type="button" onClick={handleCopyApiToken}>
+              Copy Token
+            </button>
+            <button type="button" onClick={handleRegenerateApiToken}>
+              Regenerate
+            </button>
+          </div>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+            Dibuat otomatis dan disimpan terenkripsi di komputer ini. Token ini
+            gratis, bukan license key, dan tidak menghubungi server Mrjee.
           </span>
         </div>
 

@@ -1,5 +1,6 @@
 import { safeStorage } from "electron";
 import Store from "electron-store";
+import { randomBytes } from "crypto";
 
 export interface LicenseCertificatePayload {
   version: 1;
@@ -64,6 +65,20 @@ export function getApiToken(): string {
 
 export function setApiToken(value: string): void {
   store.set("apiToken", encrypt(value.trim()));
+}
+
+export function ensureApiToken(): string {
+  const existing = getApiToken();
+  if (existing) return existing;
+  const generated = randomBytes(32).toString("hex");
+  setApiToken(generated);
+  return generated;
+}
+
+export function regenerateApiToken(): string {
+  const generated = randomBytes(32).toString("hex");
+  setApiToken(generated);
+  return generated;
 }
 
 export function getLicenseCache(): SecretSchema["licenseCache"] {

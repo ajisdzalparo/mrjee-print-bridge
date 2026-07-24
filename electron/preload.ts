@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   activateLicense: (licenseKey: string, apiToken: string) =>
     ipcRenderer.invoke('license-activate', { licenseKey, apiToken }),
   getApiToken: () => ipcRenderer.invoke('api-token-get'),
+  regenerateApiToken: () => ipcRenderer.invoke('api-token-regenerate'),
   checkForUpdates: (force = false) => ipcRenderer.invoke('update-check', force),
   openUpdate: (url: string) => ipcRenderer.invoke('update-open', url),
 });

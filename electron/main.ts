@@ -40,7 +40,12 @@ import {
   stopLicenseRefreshScheduler,
   validateLicense,
 } from "./license-service";
-import { getApiToken, setApiToken } from "./secure-store";
+import {
+  ensureApiToken,
+  getApiToken,
+  regenerateApiToken,
+  setApiToken,
+} from "./secure-store";
 import {
   checkForApplicationUpdate,
   openApplicationUpdate,
@@ -1155,6 +1160,7 @@ ipcMain.handle(
   },
 );
 ipcMain.handle("api-token-get", () => getApiToken());
+ipcMain.handle("api-token-regenerate", () => regenerateApiToken());
 ipcMain.handle("update-check", (_event, force = false) =>
   checkForApplicationUpdate(Boolean(force)),
 );
@@ -1214,6 +1220,7 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(async () => {
+    ensureApiToken();
     if (!FREE_MODE) {
       await validateLicense();
       startLicenseRefreshScheduler();
