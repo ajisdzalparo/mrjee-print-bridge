@@ -15,6 +15,7 @@ desktop tidak didistribusikan melalui repository public.
 - Unlimited local print jobs
 - CORS allowlist dan bearer token
 - System tray dan Windows auto-start
+- Notifikasi versi baru tanpa menghentikan print
 - Berjalan offline tanpa license key
 
 ## Mulai cepat

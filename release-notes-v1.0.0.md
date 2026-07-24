@@ -10,6 +10,7 @@ Rilis publik pertama untuk silent printing dari aplikasi web ke printer Windows.
 - Logical printer mapping
 - Bearer token dan CORS security
 - System tray dan auto-start
+- Notifikasi update manual yang tidak mengganggu printing
 - Offline-first
 
 ## Asset
