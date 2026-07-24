@@ -566,7 +566,7 @@ export default function App() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="main-content">
+        <main className="main-content" key={activeNav}>
           {activeNav === "dashboard" && (
             <Dashboard
               status={status}
