@@ -41,6 +41,10 @@ import {
   validateLicense,
 } from "./license-service";
 import { getApiToken, setApiToken } from "./secure-store";
+import {
+  checkForApplicationUpdate,
+  openApplicationUpdate,
+} from "./update-service";
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -1151,6 +1155,12 @@ ipcMain.handle(
   },
 );
 ipcMain.handle("api-token-get", () => getApiToken());
+ipcMain.handle("update-check", (_event, force = false) =>
+  checkForApplicationUpdate(Boolean(force)),
+);
+ipcMain.handle("update-open", (_event, url: string) =>
+  openApplicationUpdate(url),
+);
 
 function createTray(): void {
   const iconPath = getAppIconPath();

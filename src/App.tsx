@@ -58,6 +58,17 @@ interface LicenseStatus {
   offline?: boolean;
 }
 
+interface UpdateStatus {
+  checked: boolean;
+  available: boolean;
+  currentVersion: string;
+  latestVersion?: string;
+  severity?: "optional" | "recommended" | "required";
+  message?: string;
+  downloadUrl?: string;
+  releaseNotesUrl?: string;
+}
+
 const getApiBase = (port?: number) => {
   if (typeof window === "undefined") return `http://localhost:${port || 9000}`;
   const isFileOrApp =
@@ -80,6 +91,8 @@ export default function App() {
   const [status, setStatus] = useState<BridgeStatus | null>(null);
   const [license, setLicense] = useState<LicenseStatus | null>(null);
   const [apiToken, setApiToken] = useState("");
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
+  const [updateDismissed, setUpdateDismissed] = useState(false);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [logs, setLogs] = useState<string[]>([
     `[${new Date().toLocaleTimeString()}] [SERVER] Mrjee Print Bridge initialized`,
@@ -125,6 +138,15 @@ export default function App() {
         })
         .catch(() => setLicense({ valid: false, reason: "Unable to read license status." }));
     }
+  }, []);
+
+  useEffect(() => {
+    const electronApi = (window as any).electronAPI;
+    if (!electronApi?.checkForUpdates) return;
+    electronApi
+      .checkForUpdates(false)
+      .then((result: UpdateStatus) => setUpdateStatus(result))
+      .catch(() => undefined);
   }, []);
 
   const setMappingsDeduplicated = useCallback(
@@ -505,6 +527,44 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {updateStatus?.available && !updateDismissed && (
+        <section
+          className={`update-banner update-${updateStatus.severity || "optional"}`}
+          aria-live="polite"
+        >
+          <div>
+            <strong>
+              Update v{updateStatus.latestVersion} tersedia
+            </strong>
+            <span>
+              {updateStatus.message ||
+                "Versi baru tersedia. Printing tetap berjalan sampai Anda siap memperbarui."}
+            </span>
+          </div>
+          <div className="update-banner-actions">
+            {updateStatus.downloadUrl && (
+              <button
+                type="button"
+                onClick={() =>
+                  (window as any).electronAPI?.openUpdate(updateStatus.downloadUrl)
+                }
+              >
+                Download update
+              </button>
+            )}
+            {updateStatus.severity !== "required" && (
+              <button
+                type="button"
+                className="update-dismiss"
+                onClick={() => setUpdateDismissed(true)}
+              >
+                Nanti
+              </button>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* App Body with Sidebar & Content */}
       <div className="app-body">

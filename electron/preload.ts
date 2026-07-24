@@ -5,7 +5,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  getVersion: () => '1.0.0',
+  getVersion: () => ipcRenderer.invoke('update-check').then((status) => status.currentVersion),
   minimize: () => ipcRenderer.send('window-minimize'),
   maximize: () => ipcRenderer.send('window-maximize'),
   close: () => ipcRenderer.send('window-close'),
@@ -15,4 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   activateLicense: (licenseKey: string, apiToken: string) =>
     ipcRenderer.invoke('license-activate', { licenseKey, apiToken }),
   getApiToken: () => ipcRenderer.invoke('api-token-get'),
+  checkForUpdates: (force = false) => ipcRenderer.invoke('update-check', force),
+  openUpdate: (url: string) => ipcRenderer.invoke('update-open', url),
 });

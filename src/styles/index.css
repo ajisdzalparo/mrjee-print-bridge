@@ -186,6 +186,70 @@ body {
   overflow: hidden;
 }
 
+.update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 22px;
+  color: #fff7e9;
+  background: #5b1720;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.update-banner > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.update-banner strong {
+  font-size: 12px;
+}
+
+.update-banner span {
+  font-size: 10px;
+  color: rgba(255, 247, 233, 0.78);
+}
+
+.update-banner-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.update-banner button {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 1px solid #f05a28;
+  border-radius: 8px;
+  color: #381015;
+  background: #ffd6b0;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.update-banner .update-dismiss {
+  color: #fff7e9;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.update-banner.update-required {
+  background: #7b1822;
+}
+
+@media (max-width: 700px) {
+  .update-banner {
+    align-items: flex-start;
+    padding: 9px 12px;
+  }
+
+  .update-banner span {
+    display: none;
+  }
+}
+
 /* Sidebar */
 .app-sidebar {
   width: 220px;
