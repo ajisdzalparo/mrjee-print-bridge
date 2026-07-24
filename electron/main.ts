@@ -179,6 +179,19 @@ function startServer(port: number): void {
   };
 
   const demoPrintTimestamps = new Map<string, number>();
+
+  expressApp.get("/api/integration/mappings", protectPrintRoute, (_req, res) => {
+    const mappings = getMappings()
+      .filter((mapping) => mapping.enabled !== false)
+      .map((mapping) => ({
+        logicalName: mapping.logicalName,
+        physicalName: mapping.physicalName,
+        type: mapping.type,
+        enabled: mapping.enabled !== false,
+      }));
+    res.json({ success: true, mappings });
+  });
+
   const demoPayloads: Record<string, string> = {
     pdf: "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCAyMDAgMTAwXSAvQ29udGVudHMgNCAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNSAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL0xlbmd0aCAzNCA+PgpzdHJlYW0KQlQgL0YxIDEyIFRmIDEwIDQwIFRkIChURVNUIFBSSU5UKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCjUgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTEzIDAwMDAwIG4gCjAwMDAwMDAzMDEgMDAwMDAgbiAKMDAwMDAwMDM4NiAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjQ2NwolJUVPRgo=",
     raw: "\x1b@=== MRJEE TEST PRINT ===\nBridge connected successfully\n\n\n",
