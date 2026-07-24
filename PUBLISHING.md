@@ -13,7 +13,7 @@
    - `UPDATE_SEVERITY=optional`
    - `UPDATE_MESSAGE=Versi baru tersedia...`
 8. Deploy website lalu uji `/download`.
-   Pastikan `https://mrjee.id/api/update` mengembalikan manifest JSON sebelum
+   Pastikan `https://mrjeeprint.com/api/update` mengembalikan manifest JSON sebelum
    installer v1.0.0 diumumkan ke publik.
 9. Daftarkan domain ke Google Search Console.
 10. Submit `/sitemap.xml`.
