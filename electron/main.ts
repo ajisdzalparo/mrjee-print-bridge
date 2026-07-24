@@ -1055,14 +1055,23 @@ function createWindow(): void {
     show: false,
   });
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-  } else {
-    const port = getPort();
-    mainWindow.loadURL(`http://localhost:${port}`).catch(() => {
-      mainWindow?.loadFile(path.join(__dirname, "../dist/index.html"));
-    });
-  }
+  const rendererPromise =
+    !app.isPackaged
+      ? mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL || "http://localhost:5173")
+      : mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+
+  rendererPromise.catch((error) => {
+    console.error("[Window] Failed to load renderer:", error);
+  });
+
+  mainWindow.webContents.on(
+    "did-fail-load",
+    (_event, errorCode, errorDescription, validatedURL) => {
+      console.error(
+        `[Window] Renderer load failed (${errorCode}) ${errorDescription}: ${validatedURL}`,
+      );
+    },
+  );
 
   mainWindow.on("ready-to-show", () => {
     if (mainWindow && !appIcon.isEmpty()) {
