@@ -191,7 +191,7 @@ export default function SettingsView({
           <div className="switch-label-group">
             <span className="switch-title">Auto-start on Windows Boot</span>
             <span className="switch-sub">
-              Launch MJ Multiple Bridge Print automatically when PC starts
+              Launch Mrjee Print Bridge Commercial automatically when PC starts
             </span>
           </div>
           <label className="toggle-switch">

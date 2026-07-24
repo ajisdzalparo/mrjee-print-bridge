@@ -1,7 +1,7 @@
 {
-  "name": "mj-multiple-bridge-print",
+  "name": "mrjee-print-bridge-commercial",
   "version": "1.9.6",
-  "description": "MJ Multiple Bridge Print — Manage and route print jobs from web apps to local printers",
+  "description": "Mrjee Print Bridge Commercial Edition — licensed local printing middleware",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -36,8 +36,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "MrJee.MJMultiplePrinter.Desktop.v1",
-    "productName": "MJ Multiple Bridge Print",
+    "appId": "com.mrjee.printbridge.commercial",
+    "productName": "Mrjee Print Bridge Commercial",
     "directories": {
       "output": "release"
     },
@@ -70,7 +70,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MJ Multiple Bridge Print",
+      "shortcutName": "Mrjee Print Bridge Commercial",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerHeaderIcon": "build/icon.ico",
