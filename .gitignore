@@ -1,4 +1,6 @@
 node_modules/
+build/license-private.pem
+.env
 dist/
 dist-electron/
 release/

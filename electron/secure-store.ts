@@ -1,14 +1,34 @@
 import { safeStorage } from "electron";
 import Store from "electron-store";
 
+export interface LicenseCertificatePayload {
+  version: 1;
+  licenseId: string;
+  deviceId: string;
+  machineId: string;
+  customer: string;
+  plan: string;
+  kind: "subscription" | "lifetime";
+  issuedAt: string;
+  subscriptionEndsAt: string | null;
+  paymentGraceEndsAt: string | null;
+  offlineValidUntil: string | null;
+  features: string[];
+}
+
+export interface SignedLicenseCertificate {
+  payload: LicenseCertificatePayload;
+  signature: string;
+  keyId: string;
+}
+
 interface SecretSchema {
   licenseKey?: string;
   apiToken?: string;
   licenseCache?: {
-    valid: boolean;
+    certificate: SignedLicenseCertificate;
     checkedAt: string;
-    expiresAt?: string | null;
-    customer?: string;
+    lastSeenAt: string;
   };
 }
 

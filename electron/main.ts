@@ -36,6 +36,8 @@ import {
 import {
   activateLicense,
   getCurrentLicenseStatus,
+  startLicenseRefreshScheduler,
+  stopLicenseRefreshScheduler,
   validateLicense,
 } from "./license-service";
 import { getApiToken, setApiToken } from "./secure-store";
@@ -981,6 +983,7 @@ let isQuitting = false;
 
 app.on("before-quit", () => {
   isQuitting = true;
+  stopLicenseRefreshScheduler();
 });
 
 function createWindow(): void {
@@ -1131,6 +1134,7 @@ if (!gotTheLock) {
 
   app.whenReady().then(async () => {
     await validateLicense();
+    startLicenseRefreshScheduler();
     const port = getPort();
     startServer(port);
     createWindow();

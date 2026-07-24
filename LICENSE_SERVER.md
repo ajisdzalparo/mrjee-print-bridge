@@ -1,12 +1,13 @@
-# Mrjee License Server Contract
+# Mrjee Signed License Contract
 
-The desktop app validates licenses against the HTTPS endpoint configured in
-`MRJEE_LICENSE_SERVER_URL`. Keep database/admin credentials on that server;
-never package them in Electron.
+The Commercial Edition uses the HTTPS base URL configured in
+`MRJEE_LICENSE_SERVER_URL` and calls `/v1/licenses/activate` or
+`/v1/licenses/refresh`. Database/admin credentials and the Ed25519 private key
+must never be packaged in Electron.
 
 ## Request
 
-`POST MRJEE_LICENSE_SERVER_URL`
+`POST {MRJEE_LICENSE_SERVER_URL}/v1/licenses/activate`
 
 ```json
 {
@@ -22,22 +23,38 @@ never package them in Electron.
 ```json
 {
   "valid": true,
-  "expiresAt": "2027-07-24T00:00:00.000Z",
-  "customer": "Example Store"
+  "certificate": {
+    "payload": {
+      "version": 1,
+      "licenseId": "uuid",
+      "deviceId": "uuid",
+      "machineId": "sha256-machine-fingerprint",
+      "customer": "Example Store",
+      "plan": "professional",
+      "kind": "subscription",
+      "issuedAt": "2026-07-24T00:00:00.000Z",
+      "subscriptionEndsAt": "2026-08-24T00:00:00.000Z",
+      "paymentGraceEndsAt": "2026-08-27T00:00:00.000Z",
+      "offlineValidUntil": "2026-08-07T00:00:00.000Z",
+      "features": ["pdf", "raw", "zpl", "sbpl"]
+    },
+    "signature": "base64url-ed25519-signature",
+    "keyId": "mrjee-production-1"
+  }
 }
 ```
 
-For a lifetime license, return `null` for `expiresAt`. A rejected key should
-return HTTP 401/403 and:
+For a lifetime license, `subscriptionEndsAt`, `paymentGraceEndsAt`, and
+`offlineValidUntil` are `null`. A rejected key returns:
 
 ```json
 { "valid": false, "reason": "License expired" }
 ```
 
-After a successful online check, the desktop app permits a 72-hour offline
-grace period. The license key, bearer token, and validation cache are stored in
-`electron-store`; secret strings are encrypted with Electron `safeStorage`
-(Windows DPAPI) before persistence.
+The desktop verifies every certificate locally using `license-public.pem`.
+Subscription certificates permit at most 14 days offline and never exceed the
+known subscription plus payment-grace deadline. The license key and bearer
+token are encrypted using Electron `safeStorage` (Windows DPAPI).
 
 ## Print API authentication
 
