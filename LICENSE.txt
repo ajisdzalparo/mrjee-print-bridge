@@ -1,0 +1,8 @@
+Copyright (c) 2026 Mrjee.
+
+Software ini gratis digunakan untuk development dan operasional. Dilarang
+menjual ulang, memodifikasi, mendistribusikan ulang installer, melakukan reverse
+engineering, atau menggunakan nama dan merek Mrjee tanpa izin tertulis.
+
+Software diberikan "sebagaimana adanya" tanpa jaminan. Pengguna bertanggung
+jawab atas konfigurasi printer, keamanan jaringan lokal, dan hasil cetak.
