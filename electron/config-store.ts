@@ -40,7 +40,8 @@ const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
 const DEFAULT_CONFIG: ConfigData = {
   port: 9000,
-  corsOrigin: "*",
+  corsOrigin:
+    "https://print.mrjee.id,http://localhost:3000,http://localhost:3100,http://localhost:5173",
   minimizeToTray: true,
   mappings: [],
 };

@@ -197,6 +197,17 @@ function startServer(port: number): void {
       res.status(403).json({ success: false, message: "Demo printing is available only from this computer." });
       return false;
     }
+    const origin = req.header("origin");
+    const allowedDemoOrigins = new Set([
+      "https://print.mrjee.id",
+      "http://localhost:3000",
+      "http://localhost:3100",
+      "http://localhost:5173",
+    ]);
+    if (origin && !allowedDemoOrigins.has(origin)) {
+      res.status(403).json({ success: false, message: "This website is not allowed to use trial printing." });
+      return false;
+    }
     return true;
   };
 
