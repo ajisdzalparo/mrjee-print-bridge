@@ -1376,6 +1376,7 @@ export default function PrinterConfig({
 
       {/* Card Actions */}
       <div
+        className="config-actions"
         style={{
           gridColumn: "1 / -1",
           display: "flex",

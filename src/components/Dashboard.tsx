@@ -96,6 +96,7 @@ export default function Dashboard({
 
       {/* Grid Row: Active Printers Summary & Recent Jobs */}
       <div
+        className="dashboard-lower-grid"
         style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 16 }}
       >
         {/* Printers Overview Card */}
