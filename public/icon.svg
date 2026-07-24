@@ -1,0 +1,26 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Top Antennas -->
+  <rect x="36" y="22" width="3.5" height="12" fill="#2b3742" rx="1" />
+  <rect x="60.5" y="22" width="3.5" height="12" fill="#2b3742" rx="1" />
+  
+  <!-- Top Paper Slot Sheet -->
+  <rect x="39" y="16" width="22" height="16" fill="#ffffff" stroke="#2b3742" strokeWidth="3" rx="1" />
+  <line x1="43" y1="22" x2="57" y2="22" stroke="#2b3742" strokeWidth="2.5" strokeLinecap="round" />
+  <line x1="43" y1="26" x2="53" y2="26" stroke="#2b3742" strokeWidth="2.5" strokeLinecap="round" />
+  
+  <!-- Main Printer Body Casing -->
+  <rect x="28" y="28" width="44" height="10" fill="#2b3742" rx="2" />
+  <rect x="28" y="38" width="44" height="22" fill="#f97316" rx="3" stroke="#2b3742" strokeWidth="3" />
+  
+  <!-- Two White Status Dots -->
+  <circle cx="34" cy="45" r="1.5" fill="#ffffff" />
+  <circle cx="39" cy="45" r="1.5" fill="#ffffff" />
+
+  <!-- Front Slot (Dark Slate) -->
+  <rect x="34" y="52" width="32" height="12" fill="#2b3742" rx="1" />
+
+  <!-- Output Paper Sheet -->
+  <path d="M 36 54 L 64 54 L 67 76 L 33 76 Z" fill="#ffffff" stroke="#2b3742" strokeWidth="3" strokeLinejoin="round" />
+  <line x1="40" y1="62" x2="60" y2="62" stroke="#f97316" strokeWidth="3" strokeLinecap="round" />
+  <line x1="43" y1="68" x2="57" y2="68" stroke="#f97316" strokeWidth="3" strokeLinecap="round" />
+</svg>
