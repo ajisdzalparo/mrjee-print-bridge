@@ -298,6 +298,30 @@ function startServer(port: number): void {
     }
   });
 
+  const requireDesktopAccess: express.RequestHandler = (req, res, next) => {
+    if (!isLoopbackRequest(req)) {
+      return res.status(403).json({ success: false, message: "Desktop configuration is local-only." });
+    }
+    const origin = req.header("origin");
+    const allowedOrigins = new Set([
+      `http://localhost:${getPort()}`,
+      `http://127.0.0.1:${getPort()}`,
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ]);
+    if (origin && !allowedOrigins.has(origin)) {
+      return res.status(403).json({
+        success: false,
+        message: "This origin cannot modify desktop configuration.",
+      });
+    }
+    next();
+  };
+
+  expressApp.use("/api/config", requireDesktopAccess);
+  expressApp.use("/api/mappings", requireDesktopAccess);
+  expressApp.get("/api/printers", requireDesktopAccess);
+
   expressApp.get("/api/config/settings", (_req, res) => {
     res.json(getSettings());
   });
