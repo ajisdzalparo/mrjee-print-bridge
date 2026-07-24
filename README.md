@@ -1,4 +1,4 @@
-# Mrjee Print Bridge — Commercial Edition
+# Mrjee Print Bridge
 
 Produk komersial untuk customer umum.
 

@@ -85,7 +85,7 @@ export default function App() {
   const [trialMode, setTrialMode] = useState(false);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [logs, setLogs] = useState<string[]>([
-    `[${new Date().toLocaleTimeString()}] [SERVER] Mrjee Print Bridge Commercial initialized`,
+    `[${new Date().toLocaleTimeString()}] [SERVER] Mrjee Print Bridge initialized`,
   ]);
   const [toast, setToast] = useState<{
     title: string;
@@ -481,7 +481,7 @@ export default function App() {
         <div className="brand-section">
           <img
             src="/icon.png"
-            alt="Mrjee Print Bridge Commercial"
+            alt="Mrjee Print Bridge"
             className="brand-logo-img"
             style={{
               width: 34,
@@ -491,7 +491,7 @@ export default function App() {
             }}
           />
           <div className="brand-titles">
-            <span className="brand-title">MRJEE PRINT BRIDGE — COMMERCIAL</span>
+            <span className="brand-title">MRJEE PRINT BRIDGE</span>
             <span className="brand-subtitle">DESKTOP LOCAL SERVICE</span>
           </div>
         </div>

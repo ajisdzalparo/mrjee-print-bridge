@@ -1,7 +1,7 @@
 {
   "name": "mrjee-print-bridge-commercial",
   "version": "1.0.0",
-  "description": "Mrjee Print Bridge Commercial Edition — licensed local printing middleware",
+  "description": "Mrjee Print Bridge — trial and licensed local printing middleware",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -36,8 +36,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.mrjee.printbridge.commercial",
-    "productName": "Mrjee Print Bridge Commercial",
+    "appId": "com.mrjee.printbridge",
+    "productName": "Mrjee Print Bridge",
     "directories": {
       "output": "release"
     },
@@ -74,7 +74,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Mrjee Print Bridge Commercial",
+      "shortcutName": "Mrjee Print Bridge",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerHeaderIcon": "build/icon.ico",

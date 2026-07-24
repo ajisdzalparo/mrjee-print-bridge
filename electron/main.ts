@@ -1000,7 +1000,7 @@ function broadcastWs(message: object): void {
 
 // Set Windows AppUserModelID for taskbar icon grouping
 if (process.platform === "win32") {
-  app.setAppUserModelId("com.mrjee.printbridge.commercial");
+  app.setAppUserModelId("com.mrjee.printbridge");
 }
 
 function getAppIconPath(): string {
@@ -1044,7 +1044,7 @@ function createWindow(): void {
     height: 680,
     minWidth: 780,
     minHeight: 520,
-    title: "Mrjee Print Bridge Commercial",
+    title: "Mrjee Print Bridge",
     icon: iconPath,
     frame: false,
     webPreferences: {
@@ -1141,7 +1141,7 @@ function createTray(): void {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "Mrjee Print Bridge Commercial",
+      label: "Mrjee Print Bridge",
       enabled: false,
     },
     { type: "separator" },
@@ -1159,7 +1159,7 @@ function createTray(): void {
     },
   ]);
 
-  tray.setToolTip("Mrjee Print Bridge Commercial — Active");
+  tray.setToolTip("Mrjee Print Bridge — Active");
   tray.setContextMenu(contextMenu);
 
   tray.on("double-click", () => {
