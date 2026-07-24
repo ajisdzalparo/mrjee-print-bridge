@@ -378,6 +378,7 @@ body {
   align-items: center;
   gap: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .printer-tab-card {
