@@ -2,7 +2,7 @@ import { app, shell } from "electron";
 import Store from "electron-store";
 
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
-const DEFAULT_MANIFEST_URL = "https://mrjee.id/api/update";
+const DEFAULT_MANIFEST_URL = "https://mrjeeprint.com/api/update";
 
 export type UpdateSeverity = "optional" | "recommended" | "required";
 
