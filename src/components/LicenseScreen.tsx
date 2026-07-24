@@ -61,7 +61,7 @@ export default function LicenseScreen({ status, onActivated, onTrial }: Props) {
           boxShadow: "var(--shadow-card)",
         }}
       >
-        <img src="/icon.png" alt="Mrjee Print Bridge" style={{ width: 56, height: 56 }} />
+        <img src="./icon.png" alt="Mrjee Print Bridge" style={{ width: 56, height: 56 }} />
         <h1 style={{ margin: "16px 0 4px", fontSize: 24 }}>Activate Mrjee Print Bridge</h1>
         <p style={{ color: "var(--text-secondary)", fontSize: 13, lineHeight: 1.6 }}>
           Enter the license issued to your company and create the secret token

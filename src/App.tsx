@@ -455,7 +455,7 @@ export default function App() {
       <header className="app-header">
         <div className="brand-section">
           <img
-            src="/icon.png"
+            src="./icon.png"
             alt="Mrjee Print Bridge"
             className="brand-logo-img"
             style={{

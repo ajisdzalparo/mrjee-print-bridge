@@ -8,7 +8,7 @@ export default function TrialWorkspace({ port, onActivate }: Props) {
     <div className="trial-workspace">
       <div className="trial-card">
         <div className="trial-badge">TRIAL MODE · NO LICENSE REQUIRED</div>
-        <img src="/icon.png" alt="Mrjee Print Bridge" />
+        <img src="./icon.png" alt="Mrjee Print Bridge" />
         <h1>Bridge siap untuk test print.</h1>
         <p>
           Biarkan aplikasi ini tetap berjalan, lalu buka halaman demo resmi.
