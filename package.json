@@ -1,6 +1,6 @@
 {
   "name": "mrjee-print-bridge-commercial",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Mrjee Print Bridge — trial and licensed local printing middleware",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -40,6 +40,13 @@
   "build": {
     "appId": "com.mrjee.printbridge",
     "productName": "Mrjee Print Bridge",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ajisdzalparo",
+        "repo": "mrjee-print-bridge"
+      }
+    ],
     "directories": {
       "output": "release"
     },
