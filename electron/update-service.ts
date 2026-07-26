@@ -70,7 +70,13 @@ export async function checkForApplicationUpdate(force = false): Promise<UpdateSt
   const cached = store.get("lastStatus");
 
   if (!force && cached && Date.now() - lastCheckedAt < CHECK_INTERVAL_MS) {
-    return { ...cached, currentVersion };
+    return {
+      ...cached,
+      currentVersion,
+      available: cached.latestVersion
+        ? isNewer(cached.latestVersion, currentVersion)
+        : false,
+    };
   }
 
   const manifestUrl =
