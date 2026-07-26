@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
 
 interface SettingsViewProps {
   status?: { port?: number } | null;
@@ -226,22 +227,35 @@ export default function SettingsView({
 
         <div className="form-group">
           <label style={{ fontWeight: 700 }}>Local API Security Token</label>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <input
-              type={showApiToken ? "text" : "password"}
-              value={apiToken}
-              readOnly
-              aria-label="Local API security token"
-              style={{ flex: "1 1 360px", fontFamily: "monospace" }}
-            />
-            <button type="button" onClick={() => setShowApiToken((value) => !value)}>
-              {showApiToken ? "Hide" : "Show"}
+          <div className="token-control">
+            <div className="token-field">
+              <input
+                type={showApiToken ? "text" : "password"}
+                value={apiToken}
+                readOnly
+                aria-label="Local API security token"
+              />
+              <button
+                className="token-icon-btn"
+                type="button"
+                onClick={() => setShowApiToken((value) => !value)}
+                title={showApiToken ? "Sembunyikan token" : "Tampilkan token"}
+                aria-label={showApiToken ? "Sembunyikan token" : "Tampilkan token"}
+              >
+                {showApiToken ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            <button className="token-action-btn" type="button" onClick={handleCopyApiToken}>
+              <Copy size={15} />
+              <span>Copy</span>
             </button>
-            <button type="button" onClick={handleCopyApiToken}>
-              Copy Token
-            </button>
-            <button type="button" onClick={handleRegenerateApiToken}>
-              Regenerate
+            <button
+              className="token-action-btn token-regenerate-btn"
+              type="button"
+              onClick={handleRegenerateApiToken}
+            >
+              <RefreshCw size={15} />
+              <span>Regenerate</span>
             </button>
           </div>
           <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
