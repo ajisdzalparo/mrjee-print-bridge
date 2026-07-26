@@ -37,11 +37,27 @@ export interface ConfigData {
 
 const CONFIG_DIR = path.join(os.homedir(), ".print-bridge");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
+const REQUIRED_CORS_ORIGINS = [
+  "https://mrjeeprint.com",
+  "https://www.mrjeeprint.com",
+  "http://localhost:3000",
+  "http://localhost:3100",
+  "http://localhost:5173",
+];
+
+function normalizeCorsOrigins(value?: string): string {
+  const configured = (value || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .filter((origin) => origin !== "https://print.mrjee.id");
+  if (configured.includes("*")) return "*";
+  return Array.from(new Set([...REQUIRED_CORS_ORIGINS, ...configured])).join(",");
+}
 
 const DEFAULT_CONFIG: ConfigData = {
   port: 9000,
-  corsOrigin:
-    "https://print.mrjee.id,http://localhost:3000,http://localhost:3100,http://localhost:5173",
+  corsOrigin: REQUIRED_CORS_ORIGINS.join(","),
   minimizeToTray: true,
   mappings: [],
 };
@@ -65,6 +81,7 @@ export function loadConfig(): ConfigData {
           enabled: m.enabled !== undefined ? m.enabled : true,
         }));
       }
+      parsed.corsOrigin = normalizeCorsOrigins(parsed.corsOrigin);
       return { ...DEFAULT_CONFIG, ...parsed };
     }
   } catch (err) {

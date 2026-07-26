@@ -233,6 +233,9 @@ function startServer(port: number): void {
     zpl: "^XA^FO40,40^ADN,32,18^FDMRJEE PRINT BRIDGE^FS^FO40,90^B3N,N,90,Y,N^FD123456789^FS^XZ",
     sbpl:
       "\x1bA\x1bV0050\x1bH0050\x1bP02\x1bL0202\x1bX21,MRJEE PRINT BRIDGE TEST\x1bQ1\x1bZ",
+    escpos: "\x1b@=== MRJEE RECEIPT TEST ===\nItem A       1 x 10.000\nTOTAL            10.000\n\n\n",
+    image:
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZfN0AAAAASUVORK5CYII=",
   };
 
   const isLoopbackRequest = (req: express.Request) => {
@@ -294,10 +297,23 @@ function startServer(port: number): void {
       typeof req.body?.printerName === "string" ? req.body.printerName.trim() : "";
     const requestedFormat =
       typeof req.body?.format === "string" ? req.body.format.toLowerCase() : "auto";
-    if (!printerName || !["auto", "pdf", "raw", "zpl", "sbpl"].includes(requestedFormat)) {
+    const submittedData =
+      typeof req.body?.data === "string" ? req.body.data : "";
+    if (
+      !printerName ||
+      !["auto", "pdf", "raw", "zpl", "sbpl", "escpos", "image"].includes(
+        requestedFormat,
+      )
+    ) {
       return res.status(400).json({
         success: false,
         message: "An installed printer and supported demo format are required.",
+      });
+    }
+    if (submittedData.length > 2_000_000) {
+      return res.status(413).json({
+        success: false,
+        message: "Demo payload exceeds the 2 MB safety limit.",
       });
     }
 
@@ -323,6 +339,10 @@ function startServer(port: number): void {
     const format =
       requestedFormat !== "auto"
         ? requestedFormat
+        : ["pdf", "raw", "zpl", "sbpl", "escpos", "image"].includes(
+              activeMapping.type.toLowerCase(),
+            )
+          ? activeMapping.type.toLowerCase()
         : printer.driverType === "SBPL"
           ? "sbpl"
           : printer.driverType === "ZPL"
@@ -330,10 +350,11 @@ function startServer(port: number): void {
             : /epson|xprinter|bixolon|pos|receipt|thermal|tm-/i.test(printer.name)
               ? "raw"
               : "pdf";
+    const printData = submittedData || demoPayloads[format] || demoPayloads.raw;
 
     const jobId = uuidv4();
     try {
-      await executePrint(printer.name, format, demoPayloads[format], { copies: 1 });
+      await executePrint(printer.name, format, printData, { copies: 1 });
       demoPrintTimestamps.set(clientIp, Date.now());
       totalJobs++;
       const payload: PrintJobItem = {
@@ -344,7 +365,7 @@ function startServer(port: number): void {
         type: format.toUpperCase(),
         status: "COMPLETED",
         time: new Date().toLocaleTimeString(),
-        size: `${(demoPayloads[format].length / 1024).toFixed(1)} KB`,
+        size: `${(printData.length / 1024).toFixed(1)} KB`,
       };
       recordJob(payload);
       broadcastWs({ event: "print-success", payload });
@@ -369,7 +390,7 @@ function startServer(port: number): void {
         type: format.toUpperCase(),
         status: "FAILED",
         time: new Date().toLocaleTimeString(),
-        size: `${(demoPayloads[format].length / 1024).toFixed(1)} KB`,
+        size: `${(printData.length / 1024).toFixed(1)} KB`,
         error: err.message,
       };
       recordJob(payload);
