@@ -247,7 +247,8 @@ function startServer(port: number): void {
     }
     const origin = req.header("origin");
     const allowedDemoOrigins = new Set([
-      "https://print.mrjee.id",
+      "https://mrjeeprint.com",
+      "https://www.mrjeeprint.com",
       "http://localhost:3000",
       "http://localhost:3100",
       "http://localhost:5173",
@@ -585,7 +586,7 @@ function startServer(port: number): void {
     ws.send(
       JSON.stringify({
         event: "connected",
-        payload: { version: "1.0.0", jobs: recentJobs },
+        payload: { version: app.getVersion(), jobs: recentJobs },
       }),
     );
 

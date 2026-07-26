@@ -698,7 +698,7 @@ export default function App() {
           {/* Footer Bar */}
           <footer className="footer-bar">
             <div className="footer-left">
-              <span>v1.0.0-STABLE</span>
+              <span>v{status?.version || "—"}-STABLE</span>
               <span>•</span>
               <span className="footer-status-pill">
                 <span
