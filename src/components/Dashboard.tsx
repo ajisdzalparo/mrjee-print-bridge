@@ -1,3 +1,13 @@
+import {
+  Activity,
+  CheckCircle2,
+  Clock3,
+  FileText,
+  Printer,
+  RefreshCw,
+  Settings2,
+  TriangleAlert,
+} from "lucide-react";
 import type { PrinterMapping } from "../App";
 import type { PrintJob } from "./QueuesView";
 
@@ -19,6 +29,13 @@ interface Props {
   onTestPrint: (mapping: PrinterMapping) => void;
 }
 
+const formatUptime = (seconds = 0) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
+};
+
 export default function Dashboard({
   status,
   mappings,
@@ -26,318 +43,115 @@ export default function Dashboard({
   onSelectPrinter,
   onTestPrint,
 }: Props) {
-  const formatUptime = (seconds: number): string => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
-  };
+  const activeMapping = mappings.find((item) => item.enabled !== false) || mappings[0];
+  const successfulJobs = Math.max(0, status?.totalJobs ?? 0);
+  const failedJobs = Math.max(0, status?.failedJobs ?? 0);
+  const successRate =
+    successfulJobs + failedJobs > 0
+      ? ((successfulJobs / (successfulJobs + failedJobs)) * 100).toFixed(1)
+      : "100.0";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* 4 Stat Cards */}
-      <div
-        className="dashboard-stats"
-        style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
-      >
-        <div className="stat-card">
-          <div className="stat-header">
-            <span className="stat-label">System Uptime</span>
-            <div className="stat-icon uptime">⏱</div>
+    <section className="bridge-dashboard">
+      <header className="bridge-dashboard-head">
+        <div>
+          <div className="bridge-online">
+            <span />
+            {status?.running === false ? "BRIDGE OFFLINE" : "BRIDGE ONLINE"}
           </div>
-          <div className="stat-value-row">
-            <span className="stat-value">
-              {status ? formatUptime(status.uptime) : "00h 00m 00s"}
-            </span>
-          </div>
+          <small>ACTIVE PRINTER</small>
+          <h1>{activeMapping?.physicalName || "No printer selected"}</h1>
+          <p>
+            {activeMapping
+              ? `${activeMapping.logicalName} · ${activeMapping.type.toUpperCase()} · ${activeMapping.enabled === false ? "Disabled" : "Ready"}`
+              : "Create a printer mapping to begin"}
+          </p>
         </div>
+        <div className="bridge-head-side">
+          <code>LOCALHOST:{status?.port || 9000}</code>
+          <div><Printer size={32} /></div>
+        </div>
+      </header>
 
-        <div className="stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Successful Jobs</span>
-            <div className="stat-icon success">✓</div>
-          </div>
-          <div className="stat-value-row">
-            <span className="stat-value success">{status?.totalJobs ?? 0}</span>
-            <span className="stat-unit">Completed</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Failed Jobs</span>
-            <div className="stat-icon error">⚠️</div>
-          </div>
-          <div className="stat-value-row">
-            <span className="stat-value error">{status?.failedJobs ?? 0}</span>
-            <span className="stat-unit">Errors</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Configured Printers</span>
-            <div
-              className="stat-icon"
-              style={{ background: "#eff6ff", color: "#3b82f6" }}
-            >
-              🖨️
-            </div>
-          </div>
-          <div className="stat-value-row">
-            <span className="stat-value" style={{ color: "#3b82f6" }}>
-              {mappings.length}
-            </span>
-            <span className="stat-unit">Instances</span>
-          </div>
-        </div>
+      <div className="bridge-metrics">
+        <article>
+          <span><Clock3 size={14} /> SYSTEM UPTIME</span>
+          <b>{formatUptime(status?.uptime)}</b>
+          <small>Service runtime</small>
+        </article>
+        <article>
+          <span><Activity size={14} /> SUCCESS RATE</span>
+          <b>{successRate}%</b>
+          <small className="positive">Stable</small>
+        </article>
+        <article>
+          <span><Printer size={14} /> PRINTERS</span>
+          <b>{String(mappings.length).padStart(2, "0")}</b>
+          <small className="positive">{mappings.filter((m) => m.enabled !== false).length} active</small>
+        </article>
+        <article>
+          <span><TriangleAlert size={14} /> FAILED JOBS</span>
+          <b>{String(failedJobs).padStart(2, "0")}</b>
+          <small className={failedJobs ? "negative" : "positive"}>{failedJobs ? "Needs attention" : "No errors"}</small>
+        </article>
       </div>
 
-      {/* Grid Row: Active Printers Summary & Recent Jobs */}
-      <div
-        className="dashboard-lower-grid"
-        style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 16 }}
-      >
-        {/* Printers Overview Card */}
-        <div
-          style={{
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-lg)",
-            padding: 20,
-            boxShadow: "var(--shadow-card)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 14,
-                color: "var(--text-primary)",
-              }}
-            >
-              🖨️ Active Printer Instances
-            </div>
-            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-              {mappings.length} configured
-            </span>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {mappings.length > 0 ? (
-              mappings.map((m) => {
-                const isOnline = m.enabled !== false;
-                return (
-                  <div
-                    key={m.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "10px 14px",
-                      background: "#f8fafc",
-                      border: "1px solid var(--border)",
-                      borderRadius: "var(--radius-md)",
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          fontWeight: 700,
-                          fontSize: 13,
-                          color: "var(--text-primary)",
-                        }}
-                      >
-                        {m.logicalName}
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                        Target: {m.physicalName || "Not assigned"} (
-                        {m.type.toUpperCase()})
-                      </div>
-                    </div>
-
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          borderRadius: 99,
-                          fontSize: 10,
-                          fontWeight: 700,
-                          background: isOnline
-                            ? "var(--success-light)"
-                            : "#f1f5f9",
-                          color: isOnline
-                            ? "var(--success)"
-                            : "var(--text-muted)",
-                        }}
-                      >
-                        {isOnline ? "● Aktif" : "○ Nonaktif"}
-                      </span>
-                      <button
-                        onClick={() => onSelectPrinter(m.id)}
-                        style={{
-                          padding: "4px 10px",
-                          background: "var(--primary)",
-                          color: "#ffffff",
-                          border: "none",
-                          borderRadius: 4,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Configure
-                      </button>
-                      <button
-                        onClick={() => onTestPrint(m)}
-                        style={{
-                          padding: "4px 8px",
-                          background: "#ffffff",
-                          border: "1px solid var(--border)",
-                          borderRadius: 4,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        🖨️
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div
-                style={{
-                  padding: 20,
-                  textAlign: "center",
-                  color: "var(--text-muted)",
-                  fontSize: 12,
-                }}
-              >
-                No printer configured yet.
+      <div className="bridge-dashboard-grid">
+        <article className="bridge-panel queue-panel">
+          <header>
+            <div><ListIcon /> <b>Live print queue</b></div>
+            <span><RefreshCw size={13} /> Realtime</span>
+          </header>
+          <div className="bridge-queue-list">
+            {jobs.length ? jobs.slice(0, 7).map((job) => (
+              <div key={job.id}>
+                <FileText size={15} />
+                <b>{job.id}</b>
+                <span>{job.printer}</span>
+                <small>{job.time}</small>
+                <em className={job.status.toLowerCase()}>{job.status}</em>
+              </div>
+            )) : (
+              <div className="bridge-empty">
+                <CheckCircle2 size={19} />
+                <span><b>Queue is clear</b><small>New print jobs will appear here in realtime.</small></span>
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        {/* Recent Activity Card */}
-        <div
-          style={{
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-lg)",
-            padding: 20,
-            boxShadow: "var(--shadow-card)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 14,
-                color: "var(--text-primary)",
-              }}
-            >
-              📊 Recent Print Activity
-            </div>
-            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-              Last {jobs.slice(0, 5).length} jobs
-            </span>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {jobs.length > 0 ? (
-              jobs.slice(0, 5).map((job) => (
-                <div
-                  key={job.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    background: "#f8fafc",
-                    border: "1px solid #f1f5f9",
-                    borderRadius: 6,
-                    fontSize: 12,
-                  }}
-                >
-                  <div>
-                    <span
-                      style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontWeight: 700,
-                        color: "var(--primary)",
-                        marginRight: 8,
-                      }}
-                    >
-                      {job.id}
-                    </span>
-                    <span style={{ fontWeight: 600 }}>{job.printer}</span>
-                  </div>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                      {job.time}
-                    </span>
-                    <span
-                      style={{
-                        padding: "2px 6px",
-                        borderRadius: 4,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        background:
-                          job.status === "COMPLETED"
-                            ? "var(--success-light)"
-                            : "var(--error-light)",
-                        color:
-                          job.status === "COMPLETED"
-                            ? "var(--success)"
-                            : "var(--error)",
-                      }}
-                    >
-                      {job.status}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div
-                style={{
-                  padding: 20,
-                  textAlign: "center",
-                  color: "var(--text-muted)",
-                  fontSize: 12,
-                }}
-              >
-                No recent print jobs recorded yet.
+        <article className="bridge-panel printer-panel">
+          <header>
+            <div><Printer size={15} /> <b>Printer instances</b></div>
+            <span>{mappings.length} configured</span>
+          </header>
+          <div className="bridge-printer-list">
+            {mappings.length ? mappings.slice(0, 5).map((mapping) => (
+              <div key={mapping.id}>
+                <i><Printer size={16} /></i>
+                <span>
+                  <b>{mapping.logicalName}</b>
+                  <small>{mapping.physicalName || "Not assigned"} · {mapping.type.toUpperCase()}</small>
+                </span>
+                <em className={mapping.enabled === false ? "disabled" : ""}>
+                  {mapping.enabled === false ? "OFFLINE" : "ONLINE"}
+                </em>
+                <button onClick={() => onTestPrint(mapping)} title="Test print"><Printer size={14} /></button>
+                <button onClick={() => onSelectPrinter(mapping.id)} title="Configure"><Settings2 size={14} /></button>
+              </div>
+            )) : (
+              <div className="bridge-empty">
+                <Printer size={19} />
+                <span><b>No printer configured</b><small>Create your first instance from the sidebar.</small></span>
               </div>
             )}
           </div>
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
   );
+}
+
+function ListIcon() {
+  return <Activity size={15} />;
 }

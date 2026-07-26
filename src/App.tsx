@@ -1,4 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
+import {
+  FileText,
+  Gauge,
+  ListChecks,
+  Plus,
+  Printer,
+  Settings,
+} from "lucide-react";
 import Dashboard from "./components/Dashboard";
 import LogsView from "./components/LogsView";
 import PrinterConfig from "./components/PrinterConfig";
@@ -476,20 +484,10 @@ export default function App() {
       {/* App Header Bar */}
       <header className="app-header">
         <div className="brand-section">
-          <img
-            src="./icon.png"
-            alt="Mrjee Print Bridge"
-            className="brand-logo-img"
-            style={{
-              width: 34,
-              height: 34,
-              objectFit: "contain",
-              borderRadius: 4,
-            }}
-          />
+          <div className="brand-logo-img"><Printer size={18} strokeWidth={2.4} /></div>
           <div className="brand-titles">
             <span className="brand-title">MRJEE PRINT BRIDGE</span>
-            <span className="brand-subtitle">DESKTOP LOCAL SERVICE</span>
+            <span className="brand-subtitle">LOCAL PRINT INFRASTRUCTURE</span>
           </div>
         </div>
 
@@ -584,35 +582,35 @@ export default function App() {
                 className={`menu-item ${activeNav === "dashboard" ? "active" : ""}`}
                 onClick={() => setActiveNav("dashboard")}
               >
-                <span className="menu-icon">🎛️</span>
+                <span className="menu-icon"><Gauge size={18} /></span>
                 <span>DASHBOARD</span>
               </button>
               <button
                 className={`menu-item ${activeNav === "printers" ? "active" : ""}`}
                 onClick={() => setActiveNav("printers")}
               >
-                <span className="menu-icon">🖨️</span>
+                <span className="menu-icon"><Printer size={18} /></span>
                 <span>PRINTERS</span>
               </button>
               <button
                 className={`menu-item ${activeNav === "queues" ? "active" : ""}`}
                 onClick={() => setActiveNav("queues")}
               >
-                <span className="menu-icon">📊</span>
+                <span className="menu-icon"><ListChecks size={18} /></span>
                 <span>QUEUES</span>
               </button>
               <button
                 className={`menu-item ${activeNav === "logs" ? "active" : ""}`}
                 onClick={() => setActiveNav("logs")}
               >
-                <span className="menu-icon">📄</span>
+                <span className="menu-icon"><FileText size={18} /></span>
                 <span>LOGS</span>
               </button>
               <button
                 className={`menu-item ${activeNav === "settings" ? "active" : ""}`}
                 onClick={() => setActiveNav("settings")}
               >
-                <span className="menu-icon">⚙️</span>
+                <span className="menu-icon"><Settings size={18} /></span>
                 <span>SETTINGS</span>
               </button>
             </nav>
@@ -620,7 +618,7 @@ export default function App() {
 
           <div className="sidebar-bottom">
             <button className="btn-new-instance" onClick={handleAddPrinter}>
-              New Instance
+              <Plus size={17} /> New Instance
             </button>
           </div>
         </aside>
