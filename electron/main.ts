@@ -263,7 +263,15 @@ function startServer(port: number): void {
   expressApp.get("/api/demo/printers", async (req, res) => {
     if (!requireDemoAccess(req, res)) return;
     try {
-      res.json({ success: true, printers: await listPrinters() });
+      const activePrinterNames = new Set(
+        getMappings()
+          .filter((mapping) => mapping.enabled !== false)
+          .map((mapping) => mapping.physicalName),
+      );
+      const printers = (await listPrinters()).filter((printer) =>
+        activePrinterNames.has(printer.name),
+      );
+      res.json({ success: true, printers });
     } catch (err: any) {
       res.status(500).json({ success: false, message: err.message || "Could not scan printers." });
     }
@@ -293,6 +301,17 @@ function startServer(port: number): void {
       });
     }
 
+    const activeMapping = getMappings().find(
+      (mapping) =>
+        mapping.enabled !== false && mapping.physicalName === printerName,
+    );
+    if (!activeMapping) {
+      return res.status(403).json({
+        success: false,
+        message: `Printer "${printerName}" is not active in Mrjee Print Bridge.`,
+      });
+    }
+
     const printer = (await listPrinters()).find((item) => item.name === printerName);
     if (!printer) {
       return res.status(404).json({
@@ -317,6 +336,22 @@ function startServer(port: number): void {
       await executePrint(printer.name, format, demoPayloads[format], { copies: 1 });
       demoPrintTimestamps.set(clientIp, Date.now());
       totalJobs++;
+      const payload: PrintJobItem = {
+        id: `JOB-${jobId.slice(0, 6).toUpperCase()}`,
+        jobId,
+        printer: printer.name,
+        logicalName: activeMapping.logicalName,
+        type: format.toUpperCase(),
+        status: "COMPLETED",
+        time: new Date().toLocaleTimeString(),
+        size: `${(demoPayloads[format].length / 1024).toFixed(1)} KB`,
+      };
+      recordJob(payload);
+      broadcastWs({ event: "print-success", payload });
+      broadcastWs({
+        event: "log",
+        payload: `[${new Date().toLocaleTimeString()}] [DEMO] Job ${payload.id} sent to "${printer.name}" (${activeMapping.logicalName}) - SUCCESS`,
+      });
       return res.json({
         success: true,
         jobId,
@@ -326,6 +361,23 @@ function startServer(port: number): void {
       });
     } catch (err: any) {
       failedJobs++;
+      const payload: PrintJobItem = {
+        id: `JOB-${jobId.slice(0, 6).toUpperCase()}`,
+        jobId,
+        printer: printer.name,
+        logicalName: activeMapping.logicalName,
+        type: format.toUpperCase(),
+        status: "FAILED",
+        time: new Date().toLocaleTimeString(),
+        size: `${(demoPayloads[format].length / 1024).toFixed(1)} KB`,
+        error: err.message,
+      };
+      recordJob(payload);
+      broadcastWs({ event: "print-error", payload });
+      broadcastWs({
+        event: "log",
+        payload: `[${new Date().toLocaleTimeString()}] [DEMO-ERROR] Job ${payload.id} failed on "${printer.name}": ${err.message}`,
+      });
       return res.status(500).json({
         success: false,
         jobId,
