@@ -226,9 +226,13 @@ export default function QueuesView({
                       style={{
                         padding: "2px 8px",
                         borderRadius: 4,
-                        background: "#f1f5f9",
+                        background: "#24324a",
+                        border: "1px solid #40506b",
+                        color: "#f3f6fa",
                         fontSize: 11,
                         fontWeight: 700,
+                        letterSpacing: 0.4,
+                        textTransform: "uppercase",
                       }}
                     >
                       {job.type}
