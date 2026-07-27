@@ -1,4 +1,4 @@
-## Mrjee Print Bridge v2.0.0
+## Mrjee Print Bridge v1.2.0
 
 Pembaruan privacy-first untuk memahami penggunaan Bridge tanpa mengganggu local printing.
 
