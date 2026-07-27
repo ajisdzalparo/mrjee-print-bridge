@@ -987,16 +987,14 @@ async function executePrint(
     const base64Pdf = decoded.isBase64
       ? data
       : decoded.buffer.toString("base64");
-    const isSato = /sato|cl4nx|cg408|ws4|pw2|ct4i|mb400i/i.test(printerName);
-    const isZebra = /zebra/i.test(printerName);
+    // PDF jobs must use the native Chromium/Windows driver pipeline by default.
+    // Selecting RAW graphics from a printer name (for example SATO or Zebra)
+    // can make OEM Windows drivers reject the spool job as "Not Accessible".
+    // Rasterize only when the caller explicitly requests SBPL or ZPL.
     const resolvedFormat =
       format === "sbpl" || format === "zpl"
         ? format.toUpperCase()
-        : isSato
-          ? "SBPL"
-          : isZebra
-            ? "ZPL"
-            : null;
+        : null;
 
     if (resolvedFormat) {
       console.log(
@@ -1044,18 +1042,6 @@ async function executePrint(
         `[Print] Printing PDF to physical printer "${printerName}" using Electron native print engine...`,
       );
       const tempPdfPath = writeTempFile(base64Pdf, "pdf");
-      try {
-        await printPdfElectron(tempPdfPath, printerName, options);
-        console.log(
-          `[Print] Electron native print succeeded for "${printerName}".`,
-        );
-      } catch (err: any) {
-        const { dialog } = require("electron");
-        dialog.showErrorBox("Rasterization Error Debug", `Failed to rasterize PDF:\n\n${err.message}\n\nFalling back to native print...`);
-        console.error(
-          `[Print] Rasterization failed: ${err.message}. Falling back to native print...`,
-        );
-      }
       try {
         await printPdfElectron(tempPdfPath, printerName, options);
         console.log(
