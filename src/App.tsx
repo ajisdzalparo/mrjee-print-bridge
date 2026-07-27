@@ -13,6 +13,11 @@ import PrinterConfig from "./components/PrinterConfig";
 import PrinterTabs from "./components/PrinterTabs";
 import QueuesView, { type PrintJob } from "./components/QueuesView";
 import SettingsView from "./components/SettingsView";
+import {
+  disableTelemetry,
+  enableTelemetry,
+  trackDesktopEvent,
+} from "./telemetry";
 
 interface PrintOptions {
   copies?: number;
@@ -101,6 +106,7 @@ export default function App() {
   const [apiToken, setApiToken] = useState("");
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
   const [updateDismissed, setUpdateDismissed] = useState(false);
+  const [telemetryConsent, setTelemetryConsentState] = useState<boolean | null | undefined>(undefined);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [logs, setLogs] = useState<string[]>([
     `[${new Date().toLocaleTimeString()}] [SERVER] Mrjee Print Bridge initialized`,
@@ -147,6 +153,49 @@ export default function App() {
         .catch(() => setLicense({ valid: false, reason: "Unable to read license status." }));
     }
   }, []);
+
+  useEffect(() => {
+    const electronApi = (window as any).electronAPI;
+    if (!electronApi?.getTelemetryConsent) return;
+
+    let removeListener: (() => void) | undefined;
+    Promise.all([
+      electronApi.getTelemetryConsent(),
+      electronApi.getVersion?.() || Promise.resolve("unknown"),
+    ]).then(([consent, appVersion]: [boolean | null, string]) => {
+      setTelemetryConsentState(consent);
+      if (consent) {
+        enableTelemetry(appVersion);
+        trackDesktopEvent("desktop_app_started", {
+          app_version: appVersion || "unknown",
+        });
+      }
+    });
+    if (electronApi.onTelemetryEvent) {
+      removeListener = electronApi.onTelemetryEvent(
+        (event: { name: string; parameters?: Record<string, string | number | boolean> }) => {
+          trackDesktopEvent(event.name, event.parameters);
+        },
+      );
+    }
+    return () => removeListener?.();
+  }, []);
+
+  const chooseTelemetryConsent = useCallback(
+    async (enabled: boolean) => {
+      await (window as any).electronAPI?.setTelemetryConsent?.(enabled);
+      setTelemetryConsentState(enabled);
+      if (enabled) {
+        enableTelemetry(status?.version);
+        trackDesktopEvent("desktop_telemetry_opt_in", {
+          app_version: status?.version || "unknown",
+        });
+      } else {
+        disableTelemetry();
+      }
+    },
+    [status?.version],
+  );
 
   useEffect(() => {
     const electronApi = (window as any).electronAPI;
@@ -481,6 +530,31 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {telemetryConsent === null && (
+        <div className="telemetry-consent-backdrop" role="presentation">
+          <section className="telemetry-consent-card" role="dialog" aria-modal="true" aria-labelledby="telemetry-title">
+            <span className="telemetry-kicker">PRIVACY CHOICE</span>
+            <h2 id="telemetry-title">Bantu kami meningkatkan Mrjee Print Bridge?</h2>
+            <p>
+              Izinkan pengiriman statistik anonim seperti versi aplikasi, jumlah
+              konfigurasi, format print, dan berhasil atau gagalnya proses print.
+            </p>
+            <div className="telemetry-privacy-note">
+              Payload, dokumen, token, nama printer, logical name, dan identitas
+              perusahaan tidak pernah dikirim. Printing tetap berjalan saat
+              offline maupun jika Anda menolak.
+            </div>
+            <div className="telemetry-consent-actions">
+              <button type="button" className="telemetry-decline" onClick={() => chooseTelemetryConsent(false)}>
+                Jangan kirim
+              </button>
+              <button type="button" className="telemetry-accept" onClick={() => chooseTelemetryConsent(true)}>
+                Izinkan statistik anonim
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
       {/* App Header Bar */}
       <header className="app-header">
         <div className="brand-section">

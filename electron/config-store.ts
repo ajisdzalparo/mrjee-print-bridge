@@ -32,6 +32,7 @@ export interface ConfigData {
   port: number;
   corsOrigin?: string;
   minimizeToTray?: boolean;
+  telemetryConsent?: boolean | null;
   mappings: PrinterMapping[];
 }
 
@@ -59,6 +60,7 @@ const DEFAULT_CONFIG: ConfigData = {
   port: 9000,
   corsOrigin: REQUIRED_CORS_ORIGINS.join(","),
   minimizeToTray: true,
+  telemetryConsent: null,
   mappings: [],
 };
 
@@ -167,4 +169,16 @@ export function updateSettings(
   if (typeof settings.minimizeToTray === "boolean")
     config.minimizeToTray = settings.minimizeToTray;
   saveConfig(config);
+}
+
+export function getTelemetryConsent(): boolean | null {
+  const value = loadConfig().telemetryConsent;
+  return typeof value === "boolean" ? value : null;
+}
+
+export function setTelemetryConsent(enabled: boolean): boolean {
+  const config = loadConfig();
+  config.telemetryConsent = enabled;
+  saveConfig(config);
+  return enabled;
 }

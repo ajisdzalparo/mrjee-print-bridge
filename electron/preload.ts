@@ -18,4 +18,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   regenerateApiToken: () => ipcRenderer.invoke('api-token-regenerate'),
   checkForUpdates: (force = false) => ipcRenderer.invoke('update-check', force),
   openUpdate: (url: string) => ipcRenderer.invoke('update-open', url),
+  getTelemetryConsent: () => ipcRenderer.invoke('telemetry-consent-get'),
+  setTelemetryConsent: (enabled: boolean) =>
+    ipcRenderer.invoke('telemetry-consent-set', enabled),
+  onTelemetryEvent: (callback: (event: { name: string; parameters?: Record<string, string | number | boolean> }) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: unknown) => callback(payload as any);
+    ipcRenderer.on('telemetry-event', listener);
+    return () => ipcRenderer.removeListener('telemetry-event', listener);
+  },
 });

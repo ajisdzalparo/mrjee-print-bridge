@@ -18,7 +18,9 @@ import {
   getMappings,
   getPort,
   getSettings,
+  getTelemetryConsent,
   setPort,
+  setTelemetryConsent,
   updateMapping,
   updateSettings,
   type PrinterMapping,
@@ -95,6 +97,10 @@ function recordJob(job: PrintJobItem): void {
   if (recentJobs.length > 200) {
     recentJobs.pop();
   }
+  mainWindow?.webContents.send("telemetry-event", {
+    name: job.status === "COMPLETED" ? "desktop_print_success" : "desktop_print_failed",
+    parameters: { print_format: job.type.toLowerCase() },
+  });
 }
 
 // ------------------------------------------------------------------
@@ -494,12 +500,26 @@ function startServer(port: number): void {
       config: config || {},
     };
     const mappings = addMapping(mapping);
+    mainWindow?.webContents.send("telemetry-event", {
+      name: "desktop_printer_configured",
+      parameters: { print_format: mapping.type.toLowerCase() },
+    });
     broadcastWs({ event: "mappings-updated", payload: mappings });
     res.json(mapping);
   });
 
   expressApp.put("/api/mappings/:id", (req, res) => {
     const mappings = updateMapping(req.params.id, req.body);
+    const updated = mappings.find((mapping) => mapping.id === req.params.id);
+    if (updated) {
+      mainWindow?.webContents.send("telemetry-event", {
+        name: "desktop_printer_configuration_saved",
+        parameters: {
+          print_format: updated.type.toLowerCase(),
+          enabled: updated.enabled !== false,
+        },
+      });
+    }
     broadcastWs({ event: "mappings-updated", payload: mappings });
     res.json(mappings);
   });
@@ -1247,6 +1267,10 @@ ipcMain.handle(
 );
 ipcMain.handle("api-token-get", () => getApiToken());
 ipcMain.handle("api-token-regenerate", () => regenerateApiToken());
+ipcMain.handle("telemetry-consent-get", () => getTelemetryConsent());
+ipcMain.handle("telemetry-consent-set", (_event, enabled: boolean) =>
+  setTelemetryConsent(Boolean(enabled)),
+);
 ipcMain.handle("update-check", (_event, force = false) =>
   checkForApplicationUpdate(Boolean(force)),
 );

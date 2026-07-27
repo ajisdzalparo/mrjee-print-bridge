@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { disableTelemetry, enableTelemetry, trackDesktopEvent } from "../telemetry";
 
 interface SettingsViewProps {
   status?: { port?: number } | null;
@@ -22,6 +23,7 @@ export default function SettingsView({
   const [corsOrigin, setCorsOrigin] = useState<string>("*");
   const [apiToken, setApiToken] = useState<string>("");
   const [showApiToken, setShowApiToken] = useState<boolean>(false);
+  const [telemetryEnabled, setTelemetryEnabled] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
   const API_BASE =
@@ -59,7 +61,25 @@ export default function SettingsView({
         setApiToken(token || "");
       });
     }
+    if ((window as any).electronAPI?.getTelemetryConsent) {
+      (window as any).electronAPI.getTelemetryConsent().then((enabled: boolean | null) => {
+        setTelemetryEnabled(enabled === true);
+      });
+    }
   }, []);
+
+  const handleToggleTelemetry = async (checked: boolean) => {
+    setTelemetryEnabled(checked);
+    await (window as any).electronAPI?.setTelemetryConsent?.(checked);
+    if (checked) {
+      enableTelemetry();
+      trackDesktopEvent("desktop_telemetry_opt_in");
+      showToast?.("Anonymous Analytics Enabled", "Statistik anonim membantu pengembangan tanpa mengirim data print.", "success");
+    } else {
+      disableTelemetry();
+      showToast?.("Anonymous Analytics Disabled", "Bridge tidak lagi mengirim statistik penggunaan.", "info");
+    }
+  };
 
   const handleCopyApiToken = async () => {
     if (!apiToken) return;
@@ -276,6 +296,24 @@ export default function SettingsView({
               type="checkbox"
               checked={autoStart}
               onChange={(e) => handleToggleAutoStart(e.target.checked)}
+            />
+            <span className="slider-round" />
+          </label>
+        </div>
+
+        <div className="switch-row">
+          <div className="switch-label-group">
+            <span className="switch-title">Anonymous Usage Analytics</span>
+            <span className="switch-sub">
+              Kirim versi aplikasi, format print, dan status berhasil/gagal.
+              Tidak mengirim payload, token, atau nama printer.
+            </span>
+          </div>
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={telemetryEnabled}
+              onChange={(e) => handleToggleTelemetry(e.target.checked)}
             />
             <span className="slider-round" />
           </label>
